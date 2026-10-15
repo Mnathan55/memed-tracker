@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import mongoose from 'mongoose';
 
 // an error that carries an http status code
 export class HttpError extends Error {
@@ -29,7 +30,13 @@ export function errorHandler(
     return;
   }
 
-  // mongo duplicate key (for example same email twice)
+  // bad id format, like /api/submissions/abc/views
+  if (err instanceof mongoose.Error.CastError) {
+    res.status(400).json({ error: 'Invalid id' });
+    return;
+  }
+
+  // mongo duplicate key (same email, or same post link twice)
   if (typeof err === 'object' && err !== null && (err as { code?: number }).code === 11000) {
     res.status(409).json({ error: 'Already exists' });
     return;
