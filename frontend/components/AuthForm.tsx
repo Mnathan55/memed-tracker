@@ -41,23 +41,22 @@ export default function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <div className="auth">
       <div className="hero">
-        <Logo />
-        <h1 style={{ marginTop: 16 }}>
-          Post the Content. <span className="hl-green">Hit the views.</span>{' '}
-          <span className="hl-pink">Get paid.</span>
-        </h1>
-        <p>
-          Meme'd is a creator marketplace. Brands launch campaigns on Instagram or YouTube, creators
-    post for them, and payouts unlock as each post crosses a views milestone.
-        </p>
+  <Logo />
+  <h1 style={{ marginTop: 16 }}>
+    Run campaigns. <span className="hl-green">Hit milestones.</span>{' '}
+    <span className="hl-pink">Get paid.</span>
+  </h1>
+  <p>
+    Meme&apos;d is a creator marketplace. Brands launch campaigns on Instagram or YouTube,
+    creators post for them, and payouts unlock as each post crosses a views milestone.
+  </p>
 
-        <div className="ladder">
-          <div><span>10K views</span><span>₹500</span></div>
-          <div><span>50K views</span><span>₹2,000</span></div>
-          <div><span>100K views</span><span>₹5,000 🔥</span></div>
-        </div>
-      </div>
-
+  <div className="ladder">
+  <div><span>Instagram</span><span>Reels and posts</span></div>
+  <div><span>YouTube</span><span>Videos and shorts</span></div>
+ 
+</div>
+</div>
       <div className="card">
         <h2>{mode === 'signup' ? 'Join the squad ✨' : 'Welcome back 👋'}</h2>
 
