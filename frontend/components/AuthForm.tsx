@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api, saveLogin, Role, User } from '@/lib/api';
+import Logo from './Logo';
 
 interface AuthReply {
   token: string;
@@ -38,49 +39,69 @@ export default function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   return (
-    <div className="box small">
-      <h1>{mode === 'signup' ? 'Create account' : 'Login'}</h1>
+    <div className="auth">
+      <div className="hero">
+        <Logo />
+        <h1 style={{ marginTop: 16 }}>
+          Post the Content. <span className="hl-green">Hit the views.</span>{' '}
+          <span className="hl-pink">Get paid.</span>
+        </h1>
+        <p>
+          Meme'd is a creator marketplace. Brands launch campaigns on Instagram or YouTube, creators
+    post for them, and payouts unlock as each post crosses a views milestone.
+        </p>
 
-      <form onSubmit={handleSubmit}>
-        {mode === 'signup' && (
-          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password (min 6 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="ladder">
+          <div><span>10K views</span><span>₹500</span></div>
+          <div><span>50K views</span><span>₹2,000</span></div>
+          <div><span>100K views</span><span>₹5,000 🔥</span></div>
+        </div>
+      </div>
 
-        {mode === 'signup' && (
-          <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="creator">I am a creator</option>
-            <option value="brand">I am a brand</option>
-          </select>
-        )}
+      <div className="card">
+        <h2>{mode === 'signup' ? 'Join the squad ✨' : 'Welcome back 👋'}</h2>
 
-        {error && <p className="error">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          {mode === 'signup' && (
+            <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          )}
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password (min 6 characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Please wait...' : mode === 'signup' ? 'Sign up' : 'Login'}
-        </button>
-      </form>
+          {mode === 'signup' && (
+            <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="creator">I am a creator</option>
+              <option value="brand">I am a brand</option>
+            </select>
+          )}
 
-      <p>
-        {mode === 'signup' ? (
-          <>Already have an account? <Link href="/login">Login</Link></>
-        ) : (
-          <>New here? <Link href="/signup">Sign up</Link></>
-        )}
-      </p>
+          {error && <p className="error">{error}</p>}
+
+          <button type="submit" disabled={loading}>
+            {loading ? 'Loading...' : mode === 'signup' ? 'Sign up' : 'Login'}
+          </button>
+        </form>
+
+        <p className="muted" style={{ marginTop: 14 }}>
+          {mode === 'signup' ? (
+            <>Already in? <Link href="/login">Login</Link></>
+          ) : (
+            <>New here? <Link href="/signup">Create an account</Link></>
+          )}
+        </p>
+      </div>
     </div>
   );
 }

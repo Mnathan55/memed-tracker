@@ -56,7 +56,7 @@ export default function CreatorPage() {
         body: { postUrl: links[campaignId] || '' },
       });
       setLinks({ ...links, [campaignId]: '' });
-      setMessage('Post submitted');
+      setMessage('Post submitted 🎉');
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not submit');
@@ -73,7 +73,7 @@ export default function CreatorPage() {
         method: 'PATCH',
         body: { views: Number(viewInputs[submissionId]) },
       });
-      setMessage(`Views ${data.views.toLocaleString('en-IN')}. Paid now: ${rupees(data.paid)}`);
+      setMessage(`Views now ${data.views.toLocaleString('en-IN')}. Paid this time: ${rupees(data.paid)} 💸`);
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not update views');
@@ -81,25 +81,48 @@ export default function CreatorPage() {
   }
 
   return (
-    <div className="box">
-      <Header title="Creator dashboard" />
+    <div className="wrap">
+      <Header />
 
-      <h2>Total earnings: {rupees(totalEarnings)}</h2>
+      <h1>Creator dashboard 🔥</h1>
+      <p className="muted" style={{ marginBottom: 18 }}>Pick a campaign, post, and watch the money land.</p>
 
-      {error && <p className="error">{error}</p>}
-      {message && <p className="ok">{message}</p>}
+      <div className="stats">
+        <div className="stat" style={{ background: 'var(--green)' }}>
+          <small>Total earnings</small>
+          <b>{rupees(totalEarnings)}</b>
+        </div>
+        <div className="stat" style={{ background: 'var(--purple)', color: '#fff' }}>
+          <small>Posts submitted</small>
+          <b>{submissions.length}</b>
+        </div>
+        <div className="stat" style={{ background: 'var(--yellow)' }}>
+          <small>Live campaigns</small>
+          <b>{campaigns.length}</b>
+        </div>
+      </div>
+
+      {error && <p className="error" style={{ marginBottom: 14 }}>{error}</p>}
+      {message && <p className="ok" style={{ marginBottom: 14 }}>{message}</p>}
 
       <h2>Live campaigns</h2>
-      {campaigns.length === 0 && <p>No live campaigns right now.</p>}
+      {campaigns.length === 0 && <div className="card">No live campaigns right now. Check back soon 👀</div>}
 
       {campaigns.map((c) => (
         <div className="card" key={c._id}>
-          <h3>
-            {c.name} <small>({c.platform})</small>
-          </h3>
-          <p>
-            {c.targets.map((t) => `${t.views.toLocaleString('en-IN')} views → ${rupees(t.payout)}`).join(', ')}
-          </p>
+          <div className="spread">
+            <h3>{c.name}</h3>
+            <span className={`pill ${c.platform === 'instagram' ? 'pill-pink' : 'pill-orange'}`}>{c.platform}</span>
+          </div>
+
+          <div className="chips" style={{ marginBottom: 12 }}>
+            {c.targets.map((t) => (
+              <span className="chip" key={t.views}>
+                {t.views.toLocaleString('en-IN')} views → {rupees(t.payout)}
+              </span>
+            ))}
+          </div>
+
           <div className="row">
             <input
               placeholder={`Paste your ${c.platform} post link`}
@@ -111,25 +134,31 @@ export default function CreatorPage() {
         </div>
       ))}
 
-      <h2>My posts</h2>
-      {submissions.length === 0 && <p>You have not submitted any posts.</p>}
+      <h2 style={{ marginTop: 28 }}>My posts</h2>
+      {submissions.length === 0 && <div className="card">No posts yet. Submit a link above 👆</div>}
 
       {submissions.map((s) => (
         <div className="card" key={s._id}>
+          <div className="spread">
+            <h3>{s.campaign?.name}</h3>
+            <span className="pill pill-green">Earned {rupees(s.paidAmount)}</span>
+          </div>
+
           <p>
-            <b>{s.campaign?.name}</b> — <a href={s.postUrl} target="_blank" rel="noreferrer">{s.postUrl}</a>
+            <a href={s.postUrl} target="_blank" rel="noreferrer">{s.postUrl}</a>
           </p>
-          <p>
-            Views {s.views.toLocaleString('en-IN')} | Earned {rupees(s.paidAmount)}
-          </p>
-          <div className="row">
+          <p><b>{s.views.toLocaleString('en-IN')}</b> views</p>
+
+          <div className="row" style={{ marginTop: 10 }}>
             <input
               type="number"
               placeholder="Simulate total views"
               value={viewInputs[s._id] || ''}
               onChange={(e) => setViewInputs({ ...viewInputs, [s._id]: e.target.value })}
             />
-            <button onClick={() => handleUpdateViews(s._id)}>Update views</button>
+            <button className="btn-purple" onClick={() => handleUpdateViews(s._id)}>
+              Update views
+            </button>
           </div>
         </div>
       ))}

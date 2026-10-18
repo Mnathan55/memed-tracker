@@ -13,5 +13,5 @@ export default function Home() {
     else router.replace(user.role === 'brand' ? '/brand' : '/creator');
   }, [router]);
 
-  return <p className="box">Loading...</p>;
+  return <p className="wrap">Loading...</p>;
 }
