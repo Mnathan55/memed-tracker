@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meme'd Campaign Payout Tracker
 
-## Getting Started
+Brands create campaigns with a views milestone ladder. Creators submit post links and
+earn money as their posts cross milestones.
 
-First, run the development server:
+**Live app:** https://YOUR-APP.vercel.app
+**API:** https://YOUR-API.onrender.com
+
+> The backend is on Render's free tier. The first request after inactivity can take
+> about 50 seconds. Please wait for it.
+
+**Demo logins**
+
+| Role    | Email                    | Password      |
+| ------- | ------------------------ | ------------- |
+| Brand   | mangeshsirsat5@gmail.com | mangeshdatta  |
+| Creator | john5@gmail.com          | mangeshsirsat |
+
+## Tech stack
+
+Backend: Node.js, TypeScript, Express, MongoDB (Mongoose), JWT, zod.
+Frontend: Next.js, TypeScript. Tests: Jest. Hosting: Render, Vercel, MongoDB Atlas.
+
+## Run it locally
+
+Requirements: Node 18+ and a MongoDB Atlas cluster (transactions need a replica set).
+
+**Backend**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd backend
+cp .env.example .env     # fill in the values
+npm install
+npm run dev              # http://localhost:5001
+npm test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Frontend**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev              # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+| File                | Name                  | Purpose                                              |
+| ------------------- | --------------------- | ---------------------------------------------------- |
+| backend/.env        | `PORT`                | Port to listen on                                    |
+| backend/.env        | `MONGO_URI`           | Atlas connection string, including the database name |
+| backend/.env        | `JWT_SECRET`          | Secret used to sign login tokens                     |
+| backend/.env        | `FRONTEND_URL`        | Frontend address allowed by CORS                     |
+| frontend/.env.local | `NEXT_PUBLIC_API_URL` | Base URL of the backend                              |
 
-To learn more about Next.js, take a look at the following resources:
+## How payouts work
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. `earned` = payout of the highest milestone the post has reached.
+2. `owed` = `earned` minus what was already paid, never below 0.
+3. `payNow` = the smaller of `owed` and the campaign's remaining budget.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The maths is a pure function in `services/payout.ts` with Jest tests. The database update
+runs in a MongoDB transaction, and the budget is checked at write time, so simultaneous
+updates are designed not to overspend the budget, and a repeated update pays 0.
 
-## Deploy on Vercel
+## Assumptions and decisions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Naming:** a "target" in the code and API is the brief's milestone (`targets` in the request body).
+- **Two milestones in one update:** the highest is paid, minus what was already paid.
+- **Budget runs out mid-payout:** the remaining amount is paid and the campaign becomes `exhausted`.
+- **Views go down:** no clawback. Paid amounts never decrease.
+- **PATCH views sends the total**, not an increment, and has no role check, as the brief says.
+- **A milestone counts at exactly the threshold** (10,000 views reaches the 10K milestone).
+- **Validation:** milestones must increase in views and payout, and no payout can exceed the budget.
+- **Post links** must match the campaign's platform.
+- **Token storage:** localStorage, for simplicity. httpOnly cookies would be safer in production.
+- The "Update views" box on the creator page stands in for real platform data.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tests
+
+```bash
+cd backend && npm test
+```
